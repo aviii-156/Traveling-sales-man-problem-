@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  optimizationSessions OptimizationSession[]
+}
+
+model OptimizationSession {
+  id        String   @id @default(cuid())
+  name      String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locations Location[]
+  constraints Constraint[]
+  results   OptimizationResult[]
+}
+
+model Location {
+  id           String   @id @default(cuid())
+  name         String
+  address      String?
+  latitude     Float
+  longitude    Float
+  sessionId    String
+  position     Int      // Order in the original input
+  createdAt    DateTime @default(now())
+  
+  session      OptimizationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model Constraint {
+  id                 String   @id @default(cuid())
+  sessionId          String
+  type               ConstraintType
+  maxDistance        Float?   // For distance constraints
+  maxTime            Float?   // For time constraints
+  precedenceLocation String?  // For precedence constraints (must visit this location first)
+  dependentLocation  String?  // For precedence constraints (must visit this after precedenceLocation)
+  createdAt          DateTime @default(now())
+  
+  session            OptimizationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model OptimizationResult {
+  id            String   @id @default(cuid())
+  sessionId     String
+  algorithm     AlgorithmType
+  totalDistance Float
+  totalTime     Float
+  totalCost     Float
+  route         String   // JSON array of location IDs in order
+  computationTime Float  // Time taken to compute in milliseconds
+  createdAt     DateTime @default(now())
+  
+  session       OptimizationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  routeEdges    RouteEdge[]
+}
+
+model RouteEdge {
+  id           String   @id @default(cuid())
+  resultId     String?
+  fromLocation String
+  toLocation   String
+  distance     Float
+  time         Float
+  cost         Float
+  order        Int      // Position in the route
+  createdAt    DateTime @default(now())
+  
+  result       OptimizationResult? @relation(fields: [resultId], references: [id], onDelete: Cascade)
+}
+
+enum ConstraintType {
+  MAX_DISTANCE
+  MAX_TIME
+  PRECEDENCE
+}
+
+enum AlgorithmType {
+  BRUTE_FORCE
+  DYNAMIC_PROGRAMMING
+  GREEDY
+  GENETIC_ALGORITHM
+  ANT_COLONY
+}

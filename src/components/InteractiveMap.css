@@ -1,0 +1,59 @@
+/* Custom styles for Leaflet markers */
+.leaflet-container {
+  font-family: inherit;
+}
+
+.custom-marker {
+  border: none !important;
+  background: transparent !important;
+}
+
+.temp-marker {
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Ensure marker tooltips and popups are styled properly */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.leaflet-popup-content {
+  margin: 8px 12px;
+  line-height: 1.4;
+}
+
+.leaflet-popup-tip {
+  background: white;
+}
+
+/* Custom marker animations */
+@keyframes markerPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pulse {
+  animation: markerPulse 1s ease-in-out;
+}
+
+/* Better map cursor in add mode */
+.leaflet-container.adding-mode {
+  cursor: crosshair;
+}
+
+/* Ensure map controls are visible */
+.leaflet-control-container {
+  z-index: 1000;
+}
